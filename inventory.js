@@ -1,8 +1,6 @@
-// Importer readline module
 const readline = require("readline");
 const Product = require("./product"); // Import the Product class
 
-// Configurer les entrées/sorties
 const read = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
@@ -12,6 +10,7 @@ class Inventory {
     constructor() {
         this.products = []; // Array pour les produits
     }
+
     menu() {
         console.log("\n--- Menu ---\n");
         console.log("1. Ajouter un produit au stock");
@@ -37,14 +36,15 @@ class Inventory {
                 this.deleteProduct();
                 break;
             case "5":
-                console.log("Au revoir");
+                console.log("Merci, au revoir!");
                 read.close();
                 break;
             default:
-                console.log("Option invalide.");
+                console.log("Option invalide. Veuillez réessayer.");
                 this.menu();
         }
     }
+
     addProduct() {
         read.question("Nom du produit: ", (name) => {
             read.question("Quantité du produit: ", (quantity) => {
@@ -96,8 +96,66 @@ class Inventory {
         this.menu();
     }
 
+    updateProduct() {
+        read.question("Entrez l'ID du produit à mettre à jour: ", (id) => {
+            const productId = parseInt(id);
+            const product = this.products.find((p) => p.id === productId);
 
+            if (!product) {
+                console.log("Produit introuvable.");
+                this.menu();
+                return;
+            }
+
+            read.question("Nouveau nom (laisser vide pour conserver l'ancien): ", (name) => {
+                read.question("Nouvelle quantité (laisser vide pour conserver l'ancienne): ", (quantity) => {
+                    read.question("Nouvelle description (laisser vide pour conserver l'ancienne): ", (description) => {
+                        read.question("Nouveau prix (laisser vide pour conserver l'ancien): ", (prix) => {
+                            if (name) product.name = name;
+                            if (quantity) {
+                                const quantityNumber = parseFloat(quantity);
+                                if (!isNaN(quantityNumber) && quantityNumber > 0) {
+                                    product.quantity = quantityNumber;
+                                } else {
+                                    console.log("Quantité invalide.");
+                                }
+                            }
+                            if (description) product.description = description;
+                            if (prix) {
+                                const prixNumber = parseFloat(prix);
+                                if (!isNaN(prixNumber) && prixNumber > 0) {
+                                    product.prix = prixNumber;
+                                } else {
+                                    console.log("Prix invalide.");
+                                }
+                            }
+
+                            console.log("Produit mis à jour avec succès!");
+                            this.menu();
+                        });
+                    });
+                });
+            });
+        });
+    }
+
+    deleteProduct() {
+        read.question("Entrez l'ID du produit à supprimer: ", (id) => {
+            const productId = parseInt(id);
+            const index = this.products.findIndex((p) => p.id === productId);
+
+            if (index === -1) {
+                console.log("Produit introuvable.");
+            } else {
+                this.products.splice(index, 1);
+                console.log("Produit supprimé avec succès!");
+            }
+
+            this.menu();
+        });
+    }
 }
+
 // commencer le programme
 const inventory = new Inventory();
 inventory.menu();
